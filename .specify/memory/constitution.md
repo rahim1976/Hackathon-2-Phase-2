@@ -1,55 +1,88 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!-- SYNC IMPACT REPORT
+Version change: N/A (initial version) → 1.0.0
+Modified principles: N/A
+Added sections: All principles and sections from user input
+Removed sections: N/A
+Templates requiring updates:
+- .specify/templates/plan-template.md ✅ updated
+- .specify/templates/spec-template.md ✅ updated
+- .specify/templates/tasks-template.md ✅ updated
+- .specify/templates/commands/*.md ⚠ pending
+- README.md ⚠ pending
+Follow-up TODOs: None
+-->
+
+# Todo Full-Stack Web Application (Hackathon Phase-2) Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### Spec-driven Development
+All implementation must strictly follow approved specs. No coding without an approved specification that defines the behavior, interfaces, and acceptance criteria.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### Agentic Workflow Compliance
+Spec → Plan → Tasks → Implementation workflow must be followed without deviation. Manual coding outside this process is prohibited to ensure traceability and quality.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### Security-First Design
+Authentication, authorization, and user isolation must be enforced by default. Security considerations take precedence over feature delivery speed.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### Deterministic Behavior
+APIs and UI must behave consistently across users and sessions. All system behaviors must be predictable and reproducible.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### Full-Stack Coherence
+Frontend, backend, and database layers must integrate seamlessly without architectural mismatches or interface inconsistencies.
 
-### [PRINCIPLE_6_NAME]
+### Implementation Standards
+No implementation without an approved spec and plan. All API behavior must be explicitly defined in specifications before development begins.
 
+## Technology Stack Requirements
 
-[PRINCIPLE__DESCRIPTION]
+### Authentication Standard
+Authentication must use Better Auth with JWT tokens. All backend routes must validate JWT and enforce task ownership for multi-user support.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### Database Query Standards
+All database queries must be user-scoped to ensure data isolation between users. No cross-user data access is permitted without explicit authorization.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### API Design Standards
+REST APIs must follow HTTP semantics and status codes correctly. Error responses must be explicit, predictable, and properly documented.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+### Frontend-Backend Integration
+Frontend must consume APIs exactly as specified without assumptions or workarounds. No hard-coded secrets are allowed; environment variables only.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+## Development Constraints
+
+### Technology Stack Adherence
+Technology stack is fixed and non-negotiable:
+- Frontend: Next.js 16+ (App Router)
+- Backend: Python FastAPI
+- ORM: SQLModel
+- Database: Neon Serverless PostgreSQL
+- Auth: Better Auth (JWT-based)
+
+### Authentication Requirements
+All endpoints require valid JWT after authentication. Stateless backend authentication using JWT only is mandatory. Multi-user support is required.
+
+### Persistence Requirements
+Data persistence must work across user sessions. All user data must survive browser refreshes and session restarts.
+
+## Success Criteria
+
+### Specification Completion
+All three specs (Backend, Auth, Frontend) must be fully implemented and integrated into a cohesive system.
+
+### User Functionality
+Users must be able to sign up, sign in, and manage only their own tasks. Unauthorized requests must consistently return 401 status codes.
+
+### Ownership Enforcement
+Task ownership must be enforced on every CRUD operation. Users cannot access or modify tasks belonging to other users.
+
+### System Integration
+Application must work end-to-end as a full-stack system with proper integration between all components.
+
+### Process Compliance
+Specs, plans, and iterations must be reviewable and traceable. Project must pass hackathon evaluation based on process and correctness.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+All implementation must comply with these constitutional principles. Amendments require explicit documentation, approval, and migration planning. All development activities must verify constitutional compliance before merging. Deviations from these principles require architectural review and approval.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-01-10 | **Last Amended**: 2026-01-10

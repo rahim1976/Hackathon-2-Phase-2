@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.pytest_cache/
+.hypothesis/
+venv/
+env/
+ENV/
+.venv/
+.env
+.env.local
+.env.dev
+.env.prod
+.ENV
+env.bak
+venv.bak
+*.swp
+*~
+.project
+.pydevproject
+.vscode/
+
+# FastAPI/uvicorn
+uvicorn_error.log
+access.log
+error.log
+
+# Environment specific
+.env.example
+.env.staging
+.env.production
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
