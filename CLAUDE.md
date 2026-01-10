@@ -265,3 +265,12 @@ Use for all backend API tasks:
 | ORM | SQLModel | Database Agent |
 | Database | Neon Serverless PostgreSQL | Database Agent |
 | Authentication | Better Auth (JWT) | Auth Agent |
+
+## Active Technologies
+- Python 3.11 + FastAPI, SQLModel, Neon Serverless PostgreSQL, Pydantic, psycopg2-binary (001-backend-tasks)
+- Neon Serverless PostgreSQL with SQLModel ORM (001-backend-tasks)
+- Python 3.11, JavaScript/TypeScript (Next.js 16+) + Better Auth, FastAPI, python-jose, passlib, python-multipart, next-auth (002-auth-security)
+- Neon Serverless PostgreSQL (for user data) (002-auth-security)
+
+## Recent Changes
+- 001-backend-tasks: Added Python 3.11 + FastAPI, SQLModel, Neon Serverless PostgreSQL, Pydantic, psycopg2-binary
