@@ -271,6 +271,8 @@ Use for all backend API tasks:
 - Neon Serverless PostgreSQL with SQLModel ORM (001-backend-tasks)
 - Python 3.11, JavaScript/TypeScript (Next.js 16+) + Better Auth, FastAPI, python-jose, passlib, python-multipart, next-auth (002-auth-security)
 - Neon Serverless PostgreSQL (for user data) (002-auth-security)
+- TypeScript 5.0+, JavaScript ES2022, JSX, TSX + Next.js 16+, React 18+, Next-Auth, Axios, Tailwind CSS, React Hook Form (003-frontend-integration)
+- Browser localStorage/sessionStorage for authentication tokens, browser cache for UI state (003-frontend-integration)
 
 ## Recent Changes
 - 001-backend-tasks: Added Python 3.11 + FastAPI, SQLModel, Neon Serverless PostgreSQL, Pydantic, psycopg2-binary
