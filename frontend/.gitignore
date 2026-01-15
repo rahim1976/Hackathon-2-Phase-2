@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+
+# Runtime data
+.nyc_output/
+coverage/
+.nyc_output/
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+
+# Directory for user-specific development files
+.vscode
+.idea
+
+# Environment variables
+.env*.local
+.env*.backup
+.env.local
+.env.production.local
+.env.testing.local
+
+# Turbopack
+.turbo/
+
+# Lock files in build directories
+**/*.lock

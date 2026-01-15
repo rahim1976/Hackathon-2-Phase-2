@@ -5,12 +5,12 @@ import re
 from fastapi import HTTPException, status
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from backend.src.models.user import User
+from ..models.user import User
 from sqlmodel import Session, select
-from backend.src.database.engine import get_session
 
-# Initialize password hashing context
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Initialize password hashing context with schemes that avoid bcrypt initialization issues
+# Using pbkdf2_sha256 as primary (more secure) and sha256_crypt as secondary
+pwd_context = CryptContext(schemes=["pbkdf2_sha256", "sha256_crypt", "bcrypt"], deprecated="auto")
 
 # Get JWT configuration from environment
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-default-secret-key-change-in-production")

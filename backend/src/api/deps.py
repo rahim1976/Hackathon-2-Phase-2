@@ -1,5 +1,5 @@
 from sqlmodel import Session
-from backend.src.database.engine import get_new_engine
+from ..database.engine import get_new_engine
 from fastapi import Depends
 
 def get_session():

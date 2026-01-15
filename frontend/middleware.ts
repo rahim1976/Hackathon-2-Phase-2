@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // Define protected routes that require authentication
-const protectedRoutes = ['/dashboard', '/profile', '/settings'];
+const protectedRoutes = ['/dashboard', '/tasks', '/profile', '/settings'];
 
 export function middleware(request: NextRequest) {
   // Check if the current route is protected
@@ -11,12 +11,9 @@ export function middleware(request: NextRequest) {
 
   if (isProtectedRoute) {
     // Check for authentication token in cookies or headers
+    // localStorage is not available in middleware (server-side), so only check cookies and headers
     const token = request.cookies.get('access_token') ||
-                  request.headers.get('Authorization')?.replace('Bearer ', '') ||
-                  localStorage.getItem('access_token'); // This won't work in middleware, but keeping for reference
-
-    // For demo purposes, checking localStorage would need to be done client-side
-    // In a real implementation, you'd validate the token on the server
+                  request.headers.get('Authorization')?.replace('Bearer ', '');
 
     if (!token) {
       // Redirect to login page if no token is found

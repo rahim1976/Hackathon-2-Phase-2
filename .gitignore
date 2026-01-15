@@ -65,3 +65,28 @@ error.log
 # OS
 .DS_Store
 Thumbs.db
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+build/
+.nyc_output
+coverage/
+*.lcov
+.npm/
+.yarn/
+.pnp.*
+.pnp.cjs
+
+# Next.js
+.next/
+out/
+
+# Turbopack
+.turbo/
+
+# Lock files in build directories
+**/*.lock

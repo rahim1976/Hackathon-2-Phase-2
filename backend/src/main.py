@@ -24,8 +24,9 @@ async def lifespan(app: FastAPI):
     try:
         # Create database engine based on current environment
         engine = get_new_engine()
-        # Create database tables on startup
-        SQLModel.metadata.create_all(engine)
+        # Create database tables on startup using SQLModel's sync engine
+        with engine.begin() as conn:
+            SQLModel.metadata.create_all(conn)
     except Exception as e:
         print(f"Database initialization error: {e}")
         # Continue without raising exception to allow app to start for testing
@@ -42,7 +43,7 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with specific origins
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:8000"],  # Allow frontend origin
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

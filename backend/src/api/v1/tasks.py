@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from typing import List
-from backend.src.models.task import Task
-from backend.src.schemas.task import TaskCreate, TaskRead, TaskUpdate
-from backend.src.api.deps import get_session
-from backend.src.auth.dependencies import get_current_user
-from backend.src.models.user import User
+from ...models.task import Task
+from ...schemas.task import TaskCreate, TaskRead, TaskUpdate
+from ..deps import get_session
+from ...auth.dependencies import get_current_user
+from ...models.user import User
 
 router = APIRouter()
 

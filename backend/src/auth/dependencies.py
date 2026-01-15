@@ -1,10 +1,10 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.exc import NoResultFound
-from backend.src.auth.jwt_handler import get_current_user_payload
-from backend.src.models.user import User
+from .jwt_handler import get_current_user_payload
+from ..models.user import User
 from sqlmodel import Session, select
-from backend.src.database.engine import get_session
+from ..api.deps import get_session
 from typing import Generator
 
 security = HTTPBearer()
