@@ -2,18 +2,21 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from typing import Optional
 from datetime import timedelta
+import os
 import re
 
-from backend.src.models.user import User, UserBase
-from backend.src.database.engine import get_session
-from backend.src.auth.jwt_handler import (
+from ...models.user import User, UserBase
+from ...api.deps import get_session
+from ...auth.jwt_handler import (
     authenticate_user,
     create_access_token,
     get_password_hash
 )
-from backend.src.main import ACCESS_TOKEN_EXPIRE_MINUTES
-from backend.src.auth.dependencies import get_current_user
-from backend.src.schemas.user import UserCreate, UserResponse, UserLogin
+from ...auth.dependencies import get_current_user
+from ...schemas.user import UserCreate, UserResponse, UserLogin
+
+# Get token expiry from environment variable
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRES_MINUTES", "30"))
 
 router = APIRouter()
 
@@ -37,43 +40,72 @@ async def register_user(
         )
 
     # Check if user already exists
-    existing_user = session.exec(select(User).where(User.email == user_data.email)).first()
-    if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=f"User with email {user_data.email} already exists"
+    try:
+        existing_user = session.exec(select(User).where(User.email == user_data.email)).first()
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"User with email {user_data.email} already exists"
+            )
+
+        # Validate password length (bcrypt limitation: max 72 bytes)
+        # We do this after checking if user exists to avoid triggering bcrypt initialization errors unnecessarily
+        password_bytes = user_data.password.encode('utf-8')
+        if len(password_bytes) > 72:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Password is too long ({len(password_bytes)} bytes). Maximum allowed is 72 bytes."
+            )
+
+        # Create new user
+        hashed_password = get_password_hash(user_data.password)
+        db_user = User(
+            email=user_data.email,
+            hashed_password=hashed_password,
+            # Include name if provided
+            **({'name': user_data.name} if hasattr(user_data, 'name') and user_data.name else {})
         )
 
-    # Create new user
-    hashed_password = get_password_hash(user_data.password)
-    db_user = User(
-        email=user_data.email,
-        hashed_password=hashed_password,
-        # Include name if provided
-        **({'name': user_data.name} if hasattr(user_data, 'name') and user_data.name else {})
-    )
+        session.add(db_user)
+        session.commit()
+        session.refresh(db_user)
 
-    session.add(db_user)
-    session.commit()
-    session.refresh(db_user)
+        # Create access token
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)  # Use config value
+        access_token = create_access_token(
+            data={"sub": str(db_user.id), "email": db_user.email},
+            expires_delta=access_token_expires
+        )
 
-    # Create access token
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)  # Use config value
-    access_token = create_access_token(
-        data={"sub": str(db_user.id), "email": db_user.email},
-        expires_delta=access_token_expires
-    )
-
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "user": {
-            "id": db_user.id,
-            "email": db_user.email,
-            "created_at": db_user.created_at,
-            "updated_at": db_user.updated_at
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "user": {
+                "id": db_user.id,
+                "email": db_user.email,
+                "created_at": db_user.created_at,
+                "updated_at": db_user.updated_at
+            }
         }
-    }
+    except ValueError as e:
+        # Handle bcrypt value errors (like password too long)
+        if "password cannot be longer than 72 bytes" in str(e):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Password cannot be longer than 72 bytes"
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="An error occurred during registration"
+            )
+    except Exception as e:
+        # Log the error for debugging
+        print(f"Registration error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred during registration"
+        )
 
 
 @router.post("/login", response_model=dict)

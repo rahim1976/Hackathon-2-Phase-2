@@ -1,0 +1,16 @@
+'use client';
+
+import React, { ReactNode } from 'react';
+import { AuthProvider } from '../contexts/AuthContext';
+
+interface AppProvidersProps {
+  children: ReactNode;
+}
+
+export function AppProviders({ children }: AppProvidersProps) {
+  return (
+    <AuthProvider>
+      {children}
+    </AuthProvider>
+  );
+}

@@ -1,25 +1,24 @@
 import React, { useState } from 'react';
-import { api } from '../../services/api-client';
-
-interface RegisterFormData {
-  email: string;
-  password: string;
-  name?: string;
-}
+import { authService } from '../../services/auth-service';
+import { validateRegistrationForm } from '../../utils/validators';
+import { User } from '../../types/auth';
 
 interface RegisterFormProps {
-  onSuccess?: (userData: any) => void;
+  onSuccess?: (user: User) => void;
   onError?: (error: string) => void;
+  redirectToDashboard?: () => void; // Function to handle redirect after successful registration
 }
 
-const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onError }) => {
-  const [formData, setFormData] = useState<RegisterFormData>({
+const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onError, redirectToDashboard }) => {
+  const [formData, setFormData] = useState({
     email: '',
     password: '',
-    name: '',
+    confirmPassword: '',
+    name: ''
   });
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -27,26 +26,46 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onError }) => {
       ...prev,
       [name]: value
     }));
+
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitted(true);
+
+    // Validate form
+    const validation = validateRegistrationForm(formData);
+
+    if (!validation.isValid) {
+      setErrors(validation.errors);
+      return;
+    }
+
     setLoading(true);
-    setError(null);
-
     try {
-      const response = await api.auth.register(formData);
+      const result = await authService.register({
+        email: formData.email,
+        password: formData.password,
+        name: formData.name || undefined
+      });
 
-      // Store the token in localStorage or sessionStorage
-      localStorage.setItem('access_token', response.data.access_token);
-
-      // Call the success callback with user data
       if (onSuccess) {
-        onSuccess(response.data);
+        onSuccess(result.user);
+      } else if (redirectToDashboard) {
+        // Default behavior: redirect to dashboard if provided
+        redirectToDashboard();
       }
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.detail || 'Registration failed. Please try again.';
-      setError(errorMessage);
+    } catch (error: any) {
+      const errorMessage = error.message || 'Registration failed. Please try again.';
+      setErrors({ form: errorMessage });
       if (onError) {
         onError(errorMessage);
       }
@@ -56,52 +75,114 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onError }) => {
   };
 
   return (
-    <div className="register-form-container">
-      <form onSubmit={handleSubmit} className="register-form">
-        <div className="form-group">
-          <label htmlFor="name">Name:</label>
+    <div className="max-w-md w-full bg-slate-900 p-8 rounded-xl shadow-md border border-slate-800">
+      <h2 className="text-2xl font-bold mb-6 text-center text-slate-100">Create Account</h2>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label htmlFor="name" className="block text-sm font-medium text-slate-200 mb-1">
+            Name (optional)
+          </label>
           <input
             type="text"
             id="name"
             name="name"
             value={formData.name}
             onChange={handleChange}
-            className="form-control"
+            className={`w-full px-3 py-2 bg-slate-800 text-slate-200 border rounded-md placeholder-slate-400 ${
+              errors.name ? 'border-red-500' : 'border-slate-600'
+            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            placeholder="John Doe"
           />
+          {errors.name && <p className="mt-1 text-sm text-red-400">{errors.name}</p>}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="email">Email:</label>
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-slate-200 mb-1">
+            Email
+          </label>
           <input
             type="email"
             id="email"
             name="email"
             value={formData.email}
             onChange={handleChange}
+            className={`w-full px-3 py-2 bg-slate-800 text-slate-200 border rounded-md placeholder-slate-400 ${
+              errors.email ? 'border-red-500' : 'border-slate-600'
+            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            placeholder="email@example.com"
             required
-            className="form-control"
           />
+          {errors.email && <p className="mt-1 text-sm text-red-400">{errors.email}</p>}
         </div>
 
-        <div className="form-group">
-          <label htmlFor="password">Password:</label>
+        <div>
+          <label htmlFor="password" className="block text-sm font-medium text-slate-200 mb-1">
+            Password
+          </label>
           <input
             type="password"
             id="password"
             name="password"
             value={formData.password}
             onChange={handleChange}
+            className={`w-full px-3 py-2 bg-slate-800 text-slate-200 border rounded-md placeholder-slate-400 ${
+              errors.password ? 'border-red-500' : 'border-slate-600'
+            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            placeholder="••••••••"
             required
-            className="form-control"
           />
+          {errors.password && <p className="mt-1 text-sm text-red-400">{errors.password}</p>}
         </div>
 
-        {error && <div className="error-message">{error}</div>}
+        <div>
+          <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-200 mb-1">
+            Confirm Password
+          </label>
+          <input
+            type="password"
+            id="confirmPassword"
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            className={`w-full px-3 py-2 bg-slate-800 text-slate-200 border rounded-md placeholder-slate-400 ${
+              errors.confirmPassword ? 'border-red-500' : 'border-slate-600'
+            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            placeholder="••••••••"
+            required
+          />
+          {errors.confirmPassword && (
+            <p className="mt-1 text-sm text-red-400">{errors.confirmPassword}</p>
+          )}
+        </div>
 
-        <button type="submit" disabled={loading} className="btn btn-primary">
-          {loading ? 'Registering...' : 'Register'}
+        {errors.form && (
+          <div className="rounded-md bg-red-900/30 p-4 border border-red-800">
+            <p className="text-sm text-red-400">{errors.form}</p>
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
+            loading
+              ? 'bg-slate-600 cursor-not-allowed'
+              : 'bg-blue-600 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-slate-900'
+          }`}
+        >
+          {loading ? 'Creating Account...' : 'Register'}
         </button>
       </form>
+
+      <div className="mt-4 text-center">
+        <p className="text-sm text-slate-400">
+          Already have an account?{' '}
+          <a href="/login" className="font-medium text-blue-400 hover:text-blue-300">
+            Sign in
+          </a>
+        </p>
+      </div>
     </div>
   );
 };

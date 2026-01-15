@@ -1,4 +1,3 @@
-// Centralized API client with automatic JWT token attachment
 import axios from 'axios';
 
 // Create an Axios instance
@@ -10,8 +9,10 @@ const apiClient = axios.create({
 // Request interceptor to attach JWT token
 apiClient.interceptors.request.use(
   (config) => {
-    // Get token from wherever it's stored (localStorage, cookies, etc.)
-    const token = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+    // Get token from localStorage or sessionStorage
+    const token = typeof window !== 'undefined'
+      ? localStorage.getItem('access_token') || sessionStorage.getItem('access_token')
+      : null;
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -24,7 +25,7 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Response interceptor to handle 401 responses
+// Response interceptor to handle 401 responses and token expiration
 apiClient.interceptors.response.use(
   (response) => {
     return response;
@@ -32,14 +33,13 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Handle unauthorized access - clear tokens and optionally redirect to login
-      localStorage.removeItem('access_token');
-      sessionStorage.removeItem('access_token');
-
-      // Check if we're in a browser environment before redirecting
       if (typeof window !== 'undefined') {
+        localStorage.removeItem('access_token');
+        sessionStorage.removeItem('access_token');
+
         // Redirect to login page, preserving the original destination
         const currentPath = window.location.pathname;
-        const redirectUrl = `/auth/login?redirect=${encodeURIComponent(currentPath)}`;
+        const redirectUrl = `/login?redirect=${encodeURIComponent(currentPath)}`;
         window.location.href = redirectUrl;
       }
     }
@@ -47,28 +47,31 @@ apiClient.interceptors.response.use(
   }
 );
 
-// Import auth functions to use in the api object
-import { registerUser, loginUser, logoutUser, getCurrentUser } from './auth';
-
 // Export the configured API client
 export default apiClient;
 
 // Convenience methods for common operations
 export const api = {
-  // Authentication endpoints - using dedicated auth service functions
+  // Authentication endpoints
   auth: {
-    register: registerUser,
-    login: loginUser,
-    logout: logoutUser,
-    me: getCurrentUser,
+    register: (userData: { email: string; password: string; name?: string }) =>
+      apiClient.post('/auth/register', userData),
+    login: (credentials: { email: string; password: string }) =>
+      apiClient.post('/auth/login', credentials),
+    logout: () =>
+      apiClient.post('/auth/logout'),
+    me: () =>
+      apiClient.get('/auth/me'),
   },
 
-  // Task endpoints (using the same API client for consistency)
+  // Task endpoints
   tasks: {
     getAll: () => apiClient.get('/api/v1/tasks'),
     getById: (id: number) => apiClient.get(`/api/v1/tasks/${id}`),
-    create: (taskData: any) => apiClient.post('/api/v1/tasks', taskData),
-    update: (id: number, taskData: any) => apiClient.put(`/api/v1/tasks/${id}`, taskData),
+    create: (taskData: { title: string; description?: string; completed?: boolean }) =>
+      apiClient.post('/api/v1/tasks', taskData),
+    update: (id: number, taskData: { title?: string; description?: string; completed?: boolean }) =>
+      apiClient.put(`/api/v1/tasks/${id}`, taskData),
     delete: (id: number) => apiClient.delete(`/api/v1/tasks/${id}`),
   },
 };
