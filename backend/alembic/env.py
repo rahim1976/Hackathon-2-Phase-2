@@ -14,8 +14,8 @@ load_dotenv()
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Import all models to register them with SQLModel
-from backend.src.models.user import User
-from backend.src.models.task import Task
+from src.models.user import User
+from src.models.task import Task
 
 # this is the Alembic Config object
 config = context.config
