@@ -34,7 +34,8 @@
 
 5. Initialize the database:
    ```bash
-   # Run database migrations
+   # Navigate to backend directory and run database migrations
+   cd backend
    alembic upgrade head
    ```
 

@@ -44,6 +44,8 @@
 
 5. Run database migrations:
    ```bash
+   # Navigate to backend directory and run database migrations
+   cd backend
    alembic upgrade head
    ```
 
